@@ -330,6 +330,7 @@ fun SettingsScreen(
                     SettingToggleRow("Show Reverse Address", settings.showAddress) { viewModel.toggleShowAddress(it) }
                     SettingToggleRow("Show Altitude", settings.showAltitude) { viewModel.toggleShowAltitude(it) }
                     SettingToggleRow("Show Compass Bearing", settings.showCompass) { viewModel.toggleShowCompass(it) }
+                    SettingToggleRow("Auto-Save Directly to Phone Gallery", settings.autoSaveToGallery) { viewModel.toggleAutoSaveToGallery(it) }
                     SettingToggleRow("Save Original Unstamped Backup", settings.saveOriginalCopy) { viewModel.toggleSaveOriginal(it) }
                 }
             }

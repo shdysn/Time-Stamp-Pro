@@ -140,6 +140,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         _settings.update { it.copy(saveOriginalCopy = save) }
     }
 
+    fun toggleAutoSaveToGallery(autoSave: Boolean) {
+        _settings.update { it.copy(autoSaveToGallery = autoSave) }
+    }
+
     fun setProjectDefaults(projectName: String, inspectorName: String, notes: String) {
         _settings.update {
             it.copy(

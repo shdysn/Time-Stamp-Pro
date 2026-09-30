@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -47,18 +48,37 @@ class FileManager(private val context: Context) {
         val fileName = "STAMP_$dateStr.jpg"
         val stampedFile = File(imagesDir, fileName)
 
+        // 1. Save to local app storage for instant caching & app's offline gallery
         FileOutputStream(stampedFile).use { out ->
-            stampedBitmap.compress(Bitmap.CompressFormat.JPEG, 92, out)
+            stampedBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
         }
+
+        // 2. Direct save to phone's public Gallery (DCIM / Pictures via MediaStore)
+        if (settings.autoSaveToGallery) {
+            saveDirectToGallery(stampedBitmap, fileName, timestampMillis)
+        }
+
+        // Notify MediaScanner for instant gallery indexing
+        try {
+            MediaScannerConnection.scanFile(
+                context,
+                arrayOf(stampedFile.absolutePath),
+                arrayOf("image/jpeg"),
+                null
+            )
+        } catch (_: Exception) {}
 
         var originalPath: String? = null
         if (settings.saveOriginalCopy && originalBitmap != null) {
             val origFileName = "ORIG_$dateStr.jpg"
             val origFile = File(imagesDir, origFileName)
             FileOutputStream(origFile).use { out ->
-                originalBitmap.compress(Bitmap.CompressFormat.JPEG, 92, out)
+                originalBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
             }
             originalPath = origFile.absolutePath
+            if (settings.autoSaveToGallery) {
+                saveDirectToGallery(originalBitmap, origFileName, timestampMillis)
+            }
         }
 
         val template = TemplateData.getById(settings.selectedTemplateId)
@@ -89,6 +109,92 @@ class FileManager(private val context: Context) {
 
         val id = mediaDao.insertMedia(entity)
         return@withContext entity.copy(id = id)
+    }
+
+    /**
+     * Saves picture directly into device's media gallery (DCIM / Pictures)
+     * so it immediately appears in Google Photos, Samsung Gallery, etc.
+     */
+    fun saveDirectToGallery(
+        bitmap: Bitmap,
+        fileName: String,
+        timestampMillis: Long
+    ): Uri? {
+        val resolver = context.contentResolver
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Android 10+ (API 29+): Use Scoped Storage MediaStore
+            var contentValues = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                put(MediaStore.Images.Media.DATE_ADDED, timestampMillis / 1000)
+                put(MediaStore.Images.Media.DATE_TAKEN, timestampMillis)
+                // DIRECTORY_DCIM + "/Camera" places it directly into the phone's primary Camera Roll
+                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/Camera")
+                put(MediaStore.Images.Media.IS_PENDING, 1)
+            }
+
+            var uri: Uri? = try {
+                resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            } catch (_: Exception) {
+                null
+            }
+
+            // Fallback to Pictures/TimestampCameraPro if DCIM is protected
+            if (uri == null) {
+                try {
+                    contentValues = ContentValues().apply {
+                        put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+                        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                        put(MediaStore.Images.Media.DATE_ADDED, timestampMillis / 1000)
+                        put(MediaStore.Images.Media.DATE_TAKEN, timestampMillis)
+                        put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/TimestampCameraPro")
+                        put(MediaStore.Images.Media.IS_PENDING, 1)
+                    }
+                    uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                } catch (_: Exception) {
+                    uri = null
+                }
+            }
+
+            if (uri != null) {
+                try {
+                    resolver.openOutputStream(uri)?.use { out ->
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
+                    }
+                    contentValues.clear()
+                    contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
+                    resolver.update(uri, contentValues, null, null)
+                    return uri
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        } else {
+            // Android 9 and below: write to public DCIM/Camera directory
+            try {
+                val publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+                val cameraDir = File(publicDir, "Camera").takeIf { it.exists() || it.mkdirs() }
+                    ?: Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                if (!cameraDir.exists()) cameraDir.mkdirs()
+
+                val targetFile = File(cameraDir, fileName)
+                FileOutputStream(targetFile).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
+                }
+
+                MediaScannerConnection.scanFile(
+                    context,
+                    arrayOf(targetFile.absolutePath),
+                    arrayOf("image/jpeg"),
+                    null
+                )
+                return Uri.fromFile(targetFile)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        return null
     }
 
     suspend fun deletePhoto(media: MediaEntity) = withContext(Dispatchers.IO) {

@@ -62,5 +62,6 @@ data class UserSettings(
     val customNotes: String = "",
     val selectedTemplateId: String = "custom",
     val saveOriginalCopy: Boolean = true,
+    val autoSaveToGallery: Boolean = true,
     val shutterSound: Boolean = true
 )

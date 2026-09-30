@@ -130,7 +130,7 @@ fun CameraScreen(
             when (effect) {
                 is CameraUiEffect.PhotoSaved -> {
                     flashWhiteScreen = true
-                    Toast.makeText(context, "Saved: ${effect.media.fileName}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Saved to Gallery 📸", Toast.LENGTH_SHORT).show()
                 }
                 is CameraUiEffect.ShowToast -> {
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
