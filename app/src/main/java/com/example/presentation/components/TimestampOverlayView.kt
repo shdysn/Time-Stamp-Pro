@@ -78,47 +78,24 @@ fun TimestampOverlayView(
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
-            // Template Header / Badge
-            if (settings.showProjectBadge) {
+            // Mock GPS Warning if active
+            if (location.isMock) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = Color(template.primaryColorHex),
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            text = template.badgeTitle,
-                            color = Color.White,
-                            fontSize = (titleFontSize.value * 0.85f).sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Monospace
-                        )
-                    }
-                    if (location.isMock) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Warning,
-                                contentDescription = "Mock GPS",
-                                tint = AppColors.AccentRed,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Text(
-                                text = "MOCK GPS",
-                                color = AppColors.AccentRed,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = "Mock GPS",
+                        tint = AppColors.AccentRed,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = "MOCK GPS DETECTED",
+                        color = AppColors.AccentRed,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
@@ -218,33 +195,6 @@ fun TimestampOverlayView(
                         }
                     }
                 }
-            }
-
-            // Project / Inspector
-            val hasProj = settings.projectName.isNotBlank()
-            val hasInspector = settings.inspectorName.isNotBlank()
-            if (hasProj || hasInspector) {
-                val projText = buildString {
-                    if (hasProj) append("PROJ: ${settings.projectName}")
-                    if (hasProj && hasInspector) append(" • ")
-                    if (hasInspector) append("BY: ${settings.inspectorName}")
-                }
-                Text(
-                    text = projText,
-                    color = Color.White,
-                    fontSize = (baseFontSize.value * 0.95f).sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            // Notes
-            if (settings.customNotes.isNotBlank()) {
-                Text(
-                    text = "NOTE: ${settings.customNotes}",
-                    color = Color(0xFFCBD5E1),
-                    fontSize = (baseFontSize.value * 0.9f).sp,
-                    fontWeight = FontWeight.Normal
-                )
             }
         }
     }

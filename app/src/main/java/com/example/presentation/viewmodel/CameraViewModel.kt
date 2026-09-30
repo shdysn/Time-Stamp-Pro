@@ -150,14 +150,13 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun setTemplate(templateId: String) {
-        val template = TemplateData.getById(templateId)
         _uiState.update { current ->
             current.copy(
                 settings = current.settings.copy(
                     selectedTemplateId = templateId,
-                    projectName = template.defaultProject,
-                    inspectorName = template.defaultInspector,
-                    customNotes = template.defaultNotes
+                    projectName = "",
+                    inspectorName = "",
+                    customNotes = ""
                 )
             )
         }

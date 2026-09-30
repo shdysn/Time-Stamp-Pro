@@ -28,11 +28,11 @@ data class TemplateData(
                 category = "Engineering",
                 iconName = "construction",
                 description = "For site logs, structural verification, daily work progress reports.",
-                badgeTitle = "SITE INSPECTION LOG",
+                badgeTitle = "",
                 primaryColorHex = 0xFFFF9800,
-                defaultProject = "Project Alpha - Tower B",
-                defaultInspector = "Site Sup. R. Martinez",
-                defaultNotes = "Foundation concrete pour check passed"
+                defaultProject = "",
+                defaultInspector = "",
+                defaultNotes = ""
             ),
             TemplateData(
                 id = "inspection",
@@ -40,11 +40,11 @@ data class TemplateData(
                 category = "Quality Assurance",
                 iconName = "verified",
                 description = "For QA/QC audits, building diagnostics, code compliance photos.",
-                badgeTitle = "QA COMPLIANCE AUDIT",
+                badgeTitle = "",
                 primaryColorHex = 0xFF2196F3,
-                defaultProject = "HVAC & Electrical Audit",
-                defaultInspector = "Lead Auditor K. Smith",
-                defaultNotes = "Conduit seals verified compliant"
+                defaultProject = "",
+                defaultInspector = "",
+                defaultNotes = ""
             ),
             TemplateData(
                 id = "security",
@@ -52,11 +52,11 @@ data class TemplateData(
                 category = "Security",
                 iconName = "security",
                 description = "Proof of patrol rounds, checkpoint verification, incident documentation.",
-                badgeTitle = "PATROL VERIFICATION",
+                badgeTitle = "",
                 primaryColorHex = 0xFFE91E63,
-                defaultProject = "Perimeter Checkpoint 04",
-                defaultInspector = "Officer #8429",
-                defaultNotes = "South entrance secure, gates locked"
+                defaultProject = "",
+                defaultInspector = "",
+                defaultNotes = ""
             ),
             TemplateData(
                 id = "survey",
@@ -64,11 +64,11 @@ data class TemplateData(
                 category = "Geomatics",
                 iconName = "terrain",
                 description = "Boundary demarcation, GIS field tagging, elevation benchmark.",
-                badgeTitle = "GEODETIC SURVEY BENCHMARK",
+                badgeTitle = "",
                 primaryColorHex = 0xFF4CAF50,
-                defaultProject = "Sector 14 Grid Topo",
-                defaultInspector = "Surveyor M. Chen",
-                defaultNotes = "Benchmark monument #BM-102"
+                defaultProject = "",
+                defaultInspector = "",
+                defaultNotes = ""
             ),
             TemplateData(
                 id = "delivery",
@@ -76,11 +76,11 @@ data class TemplateData(
                 category = "Logistics",
                 iconName = "local_shipping",
                 description = "Proof of drop-off, freight condition check, package delivery confirmation.",
-                badgeTitle = "PROOF OF DELIVERY",
+                badgeTitle = "",
                 primaryColorHex = 0xFF9C27B0,
-                defaultProject = "Waybill #WB-99201",
-                defaultInspector = "Courier Unit 12",
-                defaultNotes = "Left with building reception"
+                defaultProject = "",
+                defaultInspector = "",
+                defaultNotes = ""
             ),
             TemplateData(
                 id = "custom",
@@ -88,11 +88,11 @@ data class TemplateData(
                 category = "General",
                 iconName = "edit",
                 description = "Freely customizable labels, notes, author tag and location stamps.",
-                badgeTitle = "FIELD EVIDENCE RECORD",
+                badgeTitle = "",
                 primaryColorHex = 0xFF00BCD4,
-                defaultProject = "Field Operation",
-                defaultInspector = "Operator",
-                defaultNotes = "General field record"
+                defaultProject = "",
+                defaultInspector = "",
+                defaultNotes = ""
             )
         )
 

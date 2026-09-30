@@ -285,7 +285,6 @@ fun SettingsScreen(
                     SettingToggleRow("Show Reverse Address", settings.showAddress) { viewModel.toggleShowAddress(it) }
                     SettingToggleRow("Show Altitude", settings.showAltitude) { viewModel.toggleShowAltitude(it) }
                     SettingToggleRow("Show Compass Bearing", settings.showCompass) { viewModel.toggleShowCompass(it) }
-                    SettingToggleRow("Show Template Badge Header", settings.showProjectBadge) { viewModel.toggleShowBadge(it) }
                     SettingToggleRow("Save Original Unstamped Backup", settings.saveOriginalCopy) { viewModel.toggleSaveOriginal(it) }
                 }
             }

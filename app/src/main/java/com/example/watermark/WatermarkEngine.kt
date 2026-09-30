@@ -79,11 +79,6 @@ object WatermarkEngine {
         // Assemble stamp text lines
         val lines = mutableListOf<String>()
 
-        // Badge / Header line
-        val headerTitle = if (settings.showProjectBadge) {
-            "● ${template.badgeTitle}"
-        } else ""
-
         // Timestamp
         if (settings.showTimestamp) {
             val formattedDate = DateFormatter.format(timestampMillis, settings.dateFormat)
@@ -124,44 +119,23 @@ object WatermarkEngine {
             lines.add(extraSensors.joinToString("  |  "))
         }
 
-        // Project / Inspector info
-        val projectParts = mutableListOf<String>()
-        if (settings.projectName.isNotBlank()) {
-            projectParts.add("PROJ: ${settings.projectName}")
-        }
-        if (settings.inspectorName.isNotBlank()) {
-            projectParts.add("BY: ${settings.inspectorName}")
-        }
-        if (projectParts.isNotEmpty()) {
-            lines.add(projectParts.joinToString("  •  "))
-        }
-
-        // Notes
-        if (settings.customNotes.isNotBlank()) {
-            lines.add("NOTE: ${settings.customNotes}")
-        }
-
         // Mock GPS Warning if detected
         if (location.isMock) {
             lines.add("⚠ WARNING: MOCK / SIMULATED GPS DETECTED")
         }
 
-        if (lines.isEmpty() && headerTitle.isEmpty()) {
+        if (lines.isEmpty()) {
             return outputBitmap
         }
 
         // Measure text dimensions
         var maxLineWidth = 0f
-        if (headerTitle.isNotEmpty()) {
-            maxLineWidth = max(maxLineWidth, titlePaint.measureText(headerTitle))
-        }
         for (line in lines) {
             maxLineWidth = max(maxLineWidth, textPaint.measureText(line))
         }
 
         val textLineHeight = baseFontSize + lineSpacing
-        val totalTextHeight = (if (headerTitle.isNotEmpty()) titleFontSize + lineSpacing * 2 else 0f) +
-                (lines.size * textLineHeight)
+        val totalTextHeight = lines.size * textLineHeight
 
         val boxWidth = maxLineWidth + (padding * 2)
         val boxHeight = totalTextHeight + (padding * 2)
@@ -204,16 +178,10 @@ object WatermarkEngine {
         // Draw Text
         var currentY = bgRect.top + padding + baseFontSize * 0.8f
 
-        if (headerTitle.isNotEmpty()) {
-            titlePaint.color = template.primaryColorHex.toInt()
-            canvas.drawText(headerTitle, bgRect.left + padding, currentY, titlePaint)
-            currentY += titleFontSize + lineSpacing * 1.5f
-        }
-
         for (line in lines) {
             val paintToUse = when {
                 line.startsWith("⚠ WARNING") -> warningPaint
-                line.startsWith("LOC:") || line.startsWith("NOTE:") -> subTextPaint
+                line.startsWith("LOC:") -> subTextPaint
                 else -> textPaint
             }
             canvas.drawText(line, bgRect.left + padding, currentY, paintToUse)

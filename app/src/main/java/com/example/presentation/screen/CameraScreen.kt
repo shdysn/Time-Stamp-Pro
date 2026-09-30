@@ -228,35 +228,19 @@ fun CameraScreen(
                 }
             }
 
-            // Quick Note & Settings Actions
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                IconButton(
-                    onClick = { viewModel.setQuickNoteDialogVisible(true) },
-                    modifier = Modifier
-                        .size(44.dp)
-                        .background(Color.Black.copy(alpha = 0.4f), CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Quick Note",
-                        tint = AppColors.AccentGold,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-
-                IconButton(
-                    onClick = onNavigateToSettings,
-                    modifier = Modifier
-                        .size(44.dp)
-                        .background(Color.Black.copy(alpha = 0.4f), CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = Color.White,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
+            // Settings Action
+            IconButton(
+                onClick = onNavigateToSettings,
+                modifier = Modifier
+                    .size(44.dp)
+                    .background(Color.Black.copy(alpha = 0.4f), CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
+                )
             }
         }
 
@@ -274,14 +258,6 @@ fun CameraScreen(
                 currentZoom = uiState.currentZoom,
                 maxZoom = uiState.maxZoom,
                 onZoomSelected = { viewModel.setZoom(it) }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Template Quick Selector Row
-            TemplateQuickSelector(
-                selectedTemplateId = uiState.settings.selectedTemplateId,
-                onTemplateSelected = { viewModel.setTemplate(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -330,67 +306,6 @@ fun CameraScreen(
                     }
                 )
             }
-        }
-
-        // Quick Note / Project Dialog
-        if (uiState.showQuickNoteDialog) {
-            var tempProject by remember { mutableStateOf(uiState.settings.projectName) }
-            var tempInspector by remember { mutableStateOf(uiState.settings.inspectorName) }
-            var tempNotes by remember { mutableStateOf(uiState.settings.customNotes) }
-
-            AlertDialog(
-                onDismissRequest = { viewModel.setQuickNoteDialogVisible(false) },
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(Icons.Default.Edit, contentDescription = null, tint = AppColors.AccentGold)
-                        Text("Edit Stamp Metadata", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
-                },
-                text = {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        OutlinedTextField(
-                            value = tempProject,
-                            onValueChange = { tempProject = it },
-                            label = { Text("Project / Jobsite Name") },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        OutlinedTextField(
-                            value = tempInspector,
-                            onValueChange = { tempInspector = it },
-                            label = { Text("Inspector / Operator") },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        OutlinedTextField(
-                            value = tempNotes,
-                            onValueChange = { tempNotes = it },
-                            label = { Text("Field Notes / Status") },
-                            maxLines = 3,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            viewModel.updateQuickNotes(tempProject, tempInspector, tempNotes)
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = AppColors.AccentGold)
-                    ) {
-                        Text("Apply", color = Color.Black, fontWeight = FontWeight.Bold)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { viewModel.setQuickNoteDialogVisible(false) }) {
-                        Text("Cancel", color = Color.LightGray)
-                    }
-                },
-                containerColor = AppColors.DarkSurface
-            )
         }
     }
 }

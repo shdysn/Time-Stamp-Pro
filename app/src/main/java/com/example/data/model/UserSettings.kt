@@ -48,11 +48,11 @@ data class UserSettings(
     val showAltitude: Boolean = true,
     val showCompass: Boolean = true,
     val showTimestamp: Boolean = true,
-    val showProjectBadge: Boolean = true,
-    val projectName: String = "Apex Site Build #402",
-    val inspectorName: String = "Engineer J. Davis",
-    val customNotes: String = "Phase 2 Structural Inspection",
-    val selectedTemplateId: String = "construction",
+    val showProjectBadge: Boolean = false,
+    val projectName: String = "",
+    val inspectorName: String = "",
+    val customNotes: String = "",
+    val selectedTemplateId: String = "custom",
     val saveOriginalCopy: Boolean = true,
     val shutterSound: Boolean = true
 )
