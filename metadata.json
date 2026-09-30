@@ -1,0 +1,6 @@
+{
+  "name": "Timestamp Camera Pro",
+  "description": "Professional timestamp and geotag camera with custom watermarks, GPS coordinates, compass, address, and industry templates.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
