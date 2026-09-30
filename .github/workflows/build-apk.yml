@@ -44,12 +44,12 @@ jobs:
             echo "Created .env from .env.example"
           fi
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon
+      - name: Build Optimized APK
+        run: ./gradlew assembleRelease --no-daemon
 
       - name: Rename APK for Direct Distribution
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk TimestampCameraPro-v1.0.apk
+          cp app/build/outputs/apk/release/app-release.apk TimestampCameraPro-v1.0.apk
           echo "APK prepared: TimestampCameraPro-v1.0.apk"
 
       - name: Upload Debug APK Artifact
