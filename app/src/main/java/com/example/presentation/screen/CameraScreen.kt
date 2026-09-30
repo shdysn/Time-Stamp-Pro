@@ -32,6 +32,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -63,6 +66,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
+import com.example.presentation.components.CustomTextDialog
 import com.example.presentation.components.FlashButton
 import com.example.presentation.components.GalleryShortcutButton
 import com.example.presentation.components.ShutterButton
@@ -228,19 +232,52 @@ fun CameraScreen(
                 }
             }
 
-            // Settings Action
-            IconButton(
-                onClick = onNavigateToSettings,
-                modifier = Modifier
-                    .size(44.dp)
-                    .background(Color.Black.copy(alpha = 0.4f), CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
-                    tint = Color.White,
-                    modifier = Modifier.size(22.dp)
-                )
+            // Top Actions (Stamp Hide/Display, Custom Text, Settings)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Hide / Display Stamp Toggle Button
+                IconButton(
+                    onClick = { viewModel.toggleStampVisibility() },
+                    modifier = Modifier
+                        .size(44.dp)
+                        .background(Color.Black.copy(alpha = 0.45f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = if (uiState.settings.isStampVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = if (uiState.settings.isStampVisible) "Hide Stamp" else "Display Stamp",
+                        tint = if (uiState.settings.isStampVisible) AppColors.AccentGold else Color.Gray,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+
+                // Custom Text on Photo Button
+                IconButton(
+                    onClick = { viewModel.setCustomTextDialogVisible(true) },
+                    modifier = Modifier
+                        .size(44.dp)
+                        .background(Color.Black.copy(alpha = 0.45f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.TextFields,
+                        contentDescription = "Text on Picture",
+                        tint = if (uiState.settings.isCustomTextEnabled && uiState.settings.customText.isNotBlank()) AppColors.AccentCyan else Color.White,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+
+                // Settings Action
+                IconButton(
+                    onClick = onNavigateToSettings,
+                    modifier = Modifier
+                        .size(44.dp)
+                        .background(Color.Black.copy(alpha = 0.45f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        tint = Color.White,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
             }
         }
 
@@ -306,6 +343,23 @@ fun CameraScreen(
                     }
                 )
             }
+        }
+
+        // Custom Text on Picture Dialog
+        if (uiState.showCustomTextDialog) {
+            CustomTextDialog(
+                initialText = uiState.settings.customText,
+                initialEnabled = uiState.settings.isCustomTextEnabled,
+                initialSize = uiState.settings.customTextSize,
+                initialBold = uiState.settings.isCustomTextBold,
+                initialItalic = uiState.settings.isCustomTextItalic,
+                initialUnderline = uiState.settings.isCustomTextUnderline,
+                initialColorHex = uiState.settings.customTextColorHex,
+                onApply = { text, isEnabled, size, isBold, isItalic, isUnderline, colorHex ->
+                    viewModel.updateCustomText(text, isEnabled, size, isBold, isItalic, isUnderline, colorHex)
+                },
+                onDismiss = { viewModel.setCustomTextDialogVisible(false) }
+            )
         }
     }
 }

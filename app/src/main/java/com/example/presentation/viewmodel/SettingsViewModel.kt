@@ -102,6 +102,36 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         _settings.update { it.copy(showTimestamp = show) }
     }
 
+    fun toggleStampVisibility(show: Boolean) {
+        _settings.update { it.copy(isStampVisible = show) }
+    }
+
+    fun updateCustomText(
+        text: String,
+        isEnabled: Boolean,
+        size: Float,
+        isBold: Boolean,
+        isItalic: Boolean,
+        isUnderline: Boolean,
+        colorHex: Long
+    ) {
+        _settings.update {
+            it.copy(
+                customText = text,
+                isCustomTextEnabled = isEnabled,
+                customTextSize = size,
+                isCustomTextBold = isBold,
+                isCustomTextItalic = isItalic,
+                isCustomTextUnderline = isUnderline,
+                customTextColorHex = colorHex
+            )
+        }
+    }
+
+    fun toggleCustomTextEnabled(enabled: Boolean) {
+        _settings.update { it.copy(isCustomTextEnabled = enabled) }
+    }
+
     fun toggleShowBadge(show: Boolean) {
         _settings.update { it.copy(showProjectBadge = show) }
     }

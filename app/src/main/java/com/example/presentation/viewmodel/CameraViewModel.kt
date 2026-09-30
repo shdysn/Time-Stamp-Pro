@@ -40,6 +40,7 @@ data class CameraUiState(
     val settings: UserSettings = UserSettings(),
     val lastCapturedMedia: MediaEntity? = null,
     val showQuickNoteDialog: Boolean = false,
+    val showCustomTextDialog: Boolean = false,
     val statusMessage: String? = null
 )
 
@@ -181,6 +182,45 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setQuickNoteDialogVisible(visible: Boolean) {
         _uiState.update { it.copy(showQuickNoteDialog = visible) }
+    }
+
+    fun setCustomTextDialogVisible(visible: Boolean) {
+        _uiState.update { it.copy(showCustomTextDialog = visible) }
+    }
+
+    fun updateCustomText(
+        text: String,
+        isEnabled: Boolean,
+        size: Float,
+        isBold: Boolean,
+        isItalic: Boolean,
+        isUnderline: Boolean,
+        colorHex: Long
+    ) {
+        _uiState.update { current ->
+            current.copy(
+                settings = current.settings.copy(
+                    customText = text,
+                    isCustomTextEnabled = isEnabled,
+                    customTextSize = size,
+                    isCustomTextBold = isBold,
+                    isCustomTextItalic = isItalic,
+                    isCustomTextUnderline = isUnderline,
+                    customTextColorHex = colorHex
+                ),
+                showCustomTextDialog = false
+            )
+        }
+    }
+
+    fun toggleStampVisibility() {
+        _uiState.update { current ->
+            current.copy(
+                settings = current.settings.copy(
+                    isStampVisible = !current.settings.isStampVisible
+                )
+            )
+        }
     }
 
     fun capturePhoto() {

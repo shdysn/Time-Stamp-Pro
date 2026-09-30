@@ -1,11 +1,13 @@
 package com.example.presentation.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,6 +17,7 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,7 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.AltitudeUnit
@@ -59,139 +65,174 @@ fun TimestampOverlayView(
 
     val isBanner = settings.stampPosition == StampPosition.BOTTOM_BANNER
 
-    Box(
-        modifier = modifier.padding(if (isBanner) 0.dp else 16.dp),
-        contentAlignment = boxAlignment
-    ) {
-        Column(
-            modifier = Modifier
-                .then(if (isBanner) Modifier.fillMaxWidth() else Modifier)
-                .background(
-                    color = Color.Black.copy(alpha = bgAlpha),
-                    shape = if (isBanner) RoundedCornerShape(0.dp) else RoundedCornerShape(8.dp)
-                )
-                .border(
-                    width = if (isBanner) 0.dp else 1.dp,
-                    color = stampColor.copy(alpha = 0.6f),
-                    shape = if (isBanner) RoundedCornerShape(0.dp) else RoundedCornerShape(8.dp)
-                )
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(3.dp)
-        ) {
-            // Mock GPS Warning if active
-            if (location.isMock) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+    Box(modifier = modifier.fillMaxSize()) {
+        // 1. Custom Text Overlay at top center (with Size, Bold, Italic, Underline, and Color)
+        if (settings.isCustomTextEnabled && settings.customText.isNotBlank()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+                    .padding(top = 70.dp, start = 20.dp, end = 20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Surface(
+                    color = Color.Black.copy(alpha = 0.65f),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, Color(settings.customTextColorHex).copy(alpha = 0.5f))
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = "Mock GPS",
-                        tint = AppColors.AccentRed,
-                        modifier = Modifier.size(14.dp)
-                    )
                     Text(
-                        text = "MOCK GPS DETECTED",
-                        color = AppColors.AccentRed,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
+                        text = settings.customText,
+                        color = Color(settings.customTextColorHex),
+                        fontSize = settings.customTextSize.sp,
+                        fontWeight = if (settings.isCustomTextBold) FontWeight.Bold else FontWeight.Normal,
+                        fontStyle = if (settings.isCustomTextItalic) FontStyle.Italic else FontStyle.Normal,
+                        textDecoration = if (settings.isCustomTextUnderline) TextDecoration.Underline else TextDecoration.None,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 }
             }
+        }
 
-            // Timestamp
-            if (settings.showTimestamp) {
-                val formattedDate = DateFormatter.format(currentTimeMillis, settings.dateFormat)
-                val tzOffset = DateFormatter.getTimezoneOffsetString()
-                Text(
-                    text = "TIME: $formattedDate ($tzOffset)",
-                    color = stampColor,
-                    fontSize = baseFontSize,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Monospace
-                )
-            }
-
-            // Coordinates
-            if (settings.showCoordinates) {
-                val coords = CoordinateFormatter.format(
-                    location.latitude,
-                    location.longitude,
-                    settings.coordinateFormat
-                )
-                val acc = if (location.accuracy > 0) String.format(Locale.US, " (±%.1fm)", location.accuracy) else ""
-                Text(
-                    text = "GPS:  $coords$acc",
-                    color = stampColor,
-                    fontSize = baseFontSize,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = FontFamily.Monospace
-                )
-            }
-
-            // Address
-            if (settings.showAddress && location.address.isNotBlank() && location.address != "Detecting location...") {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Location",
-                        tint = stampColor.copy(alpha = 0.8f),
-                        modifier = Modifier.size(13.dp)
-                    )
-                    Text(
-                        text = location.address,
-                        color = Color(0xFFE2E8F0),
-                        fontSize = (baseFontSize.value * 0.95f).sp,
-                        fontWeight = FontWeight.Medium,
-                        maxLines = 2
-                    )
-                }
-            }
-
-            // Altitude & Heading
-            val hasAlt = settings.showAltitude
-            val hasCompass = settings.showCompass
-            if (hasAlt || hasCompass) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    if (hasAlt) {
-                        val altText = if (settings.altitudeUnit == AltitudeUnit.METERS) {
-                            "${String.format(Locale.US, "%.1f", location.altitude)}m"
-                        } else {
-                            "${String.format(Locale.US, "%.1f", location.altitude * 3.28084)}ft"
-                        }
-                        Text(
-                            text = "ALT: $altText",
-                            color = stampColor,
-                            fontSize = baseFontSize,
-                            fontFamily = FontFamily.Monospace
+        // 2. Timestamp Watermark Stamp (respects isStampVisible)
+        if (settings.isStampVisible) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(if (isBanner) 0.dp else 16.dp),
+                contentAlignment = boxAlignment
+            ) {
+                Column(
+                    modifier = Modifier
+                        .then(if (isBanner) Modifier.fillMaxWidth() else Modifier)
+                        .background(
+                            color = Color.Black.copy(alpha = bgAlpha),
+                            shape = if (isBanner) RoundedCornerShape(0.dp) else RoundedCornerShape(8.dp)
                         )
-                    }
-
-                    if (hasCompass) {
+                        .border(
+                            width = if (isBanner) 0.dp else 1.dp,
+                            color = stampColor.copy(alpha = 0.6f),
+                            shape = if (isBanner) RoundedCornerShape(0.dp) else RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    // Mock GPS Warning if active
+                    if (location.isMock) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Explore,
-                                contentDescription = "Compass",
-                                tint = AppColors.AccentCyan,
-                                modifier = Modifier
-                                    .size(14.dp)
-                                    .rotate(-heading)
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = "Mock GPS",
+                                tint = AppColors.AccentRed,
+                                modifier = Modifier.size(14.dp)
                             )
                             Text(
-                                text = "DIR: ${CoordinateFormatter.formatBearing(heading)}",
-                                color = stampColor,
-                                fontSize = baseFontSize,
-                                fontFamily = FontFamily.Monospace
+                                text = "MOCK GPS DETECTED",
+                                color = AppColors.AccentRed,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
                             )
+                        }
+                    }
+
+                    // Timestamp
+                    if (settings.showTimestamp) {
+                        val formattedDate = DateFormatter.format(currentTimeMillis, settings.dateFormat)
+                        val tzOffset = DateFormatter.getTimezoneOffsetString()
+                        Text(
+                            text = "TIME: $formattedDate ($tzOffset)",
+                            color = stampColor,
+                            fontSize = baseFontSize,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+
+                    // Coordinates
+                    if (settings.showCoordinates) {
+                        val coords = CoordinateFormatter.format(
+                            location.latitude,
+                            location.longitude,
+                            settings.coordinateFormat
+                        )
+                        val acc = if (location.accuracy > 0) String.format(Locale.US, " (±%.1fm)", location.accuracy) else ""
+                        Text(
+                            text = "GPS:  $coords$acc",
+                            color = stampColor,
+                            fontSize = baseFontSize,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+
+                    // Address
+                    if (settings.showAddress && location.address.isNotBlank() && location.address != "Detecting location...") {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = "Location",
+                                tint = stampColor.copy(alpha = 0.8f),
+                                modifier = Modifier.size(13.dp)
+                            )
+                            Text(
+                                text = location.address,
+                                color = Color(0xFFE2E8F0),
+                                fontSize = (baseFontSize.value * 0.95f).sp,
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 2
+                            )
+                        }
+                    }
+
+                    // Altitude & Heading
+                    val hasAlt = settings.showAltitude
+                    val hasCompass = settings.showCompass
+                    if (hasAlt || hasCompass) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            if (hasAlt) {
+                                val altText = if (settings.altitudeUnit == AltitudeUnit.METERS) {
+                                    "${String.format(Locale.US, "%.1f", location.altitude)}m"
+                                } else {
+                                    "${String.format(Locale.US, "%.1f", location.altitude * 3.28084)}ft"
+                                }
+                                Text(
+                                    text = "ALT: $altText",
+                                    color = stampColor,
+                                    fontSize = baseFontSize,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            }
+
+                            if (hasCompass) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Explore,
+                                        contentDescription = "Compass",
+                                        tint = AppColors.AccentCyan,
+                                        modifier = Modifier
+                                            .size(14.dp)
+                                            .rotate(-heading)
+                                    )
+                                    Text(
+                                        text = "DIR: ${CoordinateFormatter.formatBearing(heading)}",
+                                        color = stampColor,
+                                        fontSize = baseFontSize,
+                                        fontFamily = FontFamily.Monospace
+                                    )
+                                }
+                            }
                         }
                     }
                 }

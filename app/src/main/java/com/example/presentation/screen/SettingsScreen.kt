@@ -44,6 +44,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +60,7 @@ import com.example.data.model.CoordinateFormat
 import com.example.data.model.StampColor
 import com.example.data.model.StampFontSize
 import com.example.data.model.StampPosition
+import com.example.presentation.components.CustomTextDialog
 import com.example.presentation.designsystem.AppColors
 import com.example.presentation.viewmodel.SettingsViewModel
 import com.example.timestamp.DateFormatter
@@ -71,6 +75,7 @@ fun SettingsScreen(
 ) {
     val settings by viewModel.settings.collectAsState()
     val diagnostics by viewModel.diagnostics.collectAsState()
+    var showCustomTextDialog by remember { mutableStateOf(false) }
 
     BackHandler {
         onNavigateBack()
@@ -280,6 +285,46 @@ fun SettingsScreen(
             // 4. Data Overlays Toggle
             SectionCard(title = "VISIBLE ELEMENTS ON STAMP") {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SettingToggleRow("Display Timestamp Overlay (Hide/Show)", settings.isStampVisible) { viewModel.toggleStampVisibility(it) }
+                    SettingToggleRow("Display Custom Text on Photo", settings.isCustomTextEnabled) { viewModel.toggleCustomTextEnabled(it) }
+                    
+                    Surface(
+                        onClick = { showCustomTextDialog = true },
+                        color = AppColors.DarkSurfaceVariant,
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    text = "Custom Text Styling",
+                                    color = Color.White,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "Size, Bold, Italic, Underline & Color",
+                                    color = AppColors.AccentGold,
+                                    fontSize = 12.sp
+                                )
+                            }
+                            Text(
+                                text = "Edit ✎",
+                                color = AppColors.AccentGold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+
                     SettingToggleRow("Show Date & Time", settings.showTimestamp) { viewModel.toggleShowTimestamp(it) }
                     SettingToggleRow("Show GPS Coordinates", settings.showCoordinates) { viewModel.toggleShowCoordinates(it) }
                     SettingToggleRow("Show Reverse Address", settings.showAddress) { viewModel.toggleShowAddress(it) }
@@ -315,6 +360,23 @@ fun SettingsScreen(
                     fontFamily = FontFamily.Monospace
                 )
             }
+        }
+
+        if (showCustomTextDialog) {
+            CustomTextDialog(
+                initialText = settings.customText,
+                initialEnabled = settings.isCustomTextEnabled,
+                initialSize = settings.customTextSize,
+                initialBold = settings.isCustomTextBold,
+                initialItalic = settings.isCustomTextItalic,
+                initialUnderline = settings.isCustomTextUnderline,
+                initialColorHex = settings.customTextColorHex,
+                onApply = { text, isEnabled, size, isBold, isItalic, isUnderline, colorHex ->
+                    viewModel.updateCustomText(text, isEnabled, size, isBold, isItalic, isUnderline, colorHex)
+                    showCustomTextDialog = false
+                },
+                onDismiss = { showCustomTextDialog = false }
+            )
         }
     }
 }

@@ -48,6 +48,14 @@ data class UserSettings(
     val showAltitude: Boolean = true,
     val showCompass: Boolean = true,
     val showTimestamp: Boolean = true,
+    val isStampVisible: Boolean = true, // Master hide/display toggle for timestamp stamp
+    val customText: String = "", // Custom user-entered text over photo
+    val isCustomTextEnabled: Boolean = false,
+    val customTextSize: Float = 24f,
+    val isCustomTextBold: Boolean = true,
+    val isCustomTextItalic: Boolean = false,
+    val isCustomTextUnderline: Boolean = false,
+    val customTextColorHex: Long = 0xFFFFFFFF,
     val showProjectBadge: Boolean = false,
     val projectName: String = "",
     val inspectorName: String = "",
